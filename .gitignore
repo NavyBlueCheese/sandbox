@@ -1,0 +1,14 @@
+.vscode/
+__pycache__/
+*.pyc
+*.exe
+*.o
+data/
+*.png
+*.pdf
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
