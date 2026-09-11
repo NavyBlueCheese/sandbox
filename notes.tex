@@ -1,0 +1,95 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{margin=2.5cm}
+
+\title{Monte Carlo Pricing of Asian Options}
+\author{Navy}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Take $S_t$ to follow geometric Brownian motion under the risk-neutral measure
+$\mathbb{Q}$:
+%
+\begin{equation}
+    dS_t = r S_t \, dt + \sigma S_t \, dW_t ,
+\end{equation}
+%
+with $r$ the risk-free rate, $\sigma$ the volatility and $W_t$ a standard
+Brownian motion. The solution is
+%
+\begin{equation}
+    S_T = S_0 \exp\!\left( \left(r - \tfrac{1}{2}\sigma^2\right) T
+          + \sigma \sqrt{T}\, Z \right),
+    \qquad Z \sim \mathcal{N}(0,1),
+    \label{eq:gbm}
+\end{equation}
+%
+and equation~\eqref{eq:gbm} is what the simulation samples from directly.
+
+\section{European call as a control}
+
+The European call has a closed form,
+%
+\begin{equation}
+    C = S_0 \Phi(d_1) - K e^{-rT} \Phi(d_2),
+    \qquad
+    d_{1,2} = \frac{\ln(S_0/K) + \left(r \pm \tfrac{1}{2}\sigma^2\right)T}
+                   {\sigma\sqrt{T}},
+\end{equation}
+%
+where $\Phi$ is the standard normal CDF. Since the answer is already known,
+pricing it by simulation is a check on the estimator. If the simulated price sits inside the confidence interval
+around the analytic price, the sampling and discounting are behaving.
+
+\section{Asian call}
+
+An arithmetic-average Asian call pays
+%
+\begin{equation}
+    \max\!\left( \frac{1}{n}\sum_{i=1}^{n} S_{t_i} - K,\; 0 \right).
+\end{equation}
+%
+A sum of lognormal variables is not lognormal, so there is no closed form to
+fall back on. The estimator is
+%
+\begin{equation}
+    C_{\text{Asian}} = e^{-rT}\, \mathbb{E}^{\mathbb{Q}}
+        \!\left[ \max\!\left( \bar{S} - K,\, 0 \right) \right]
+    \approx \frac{e^{-rT}}{M} \sum_{j=1}^{M}
+        \max\!\left( \bar{S}^{(j)} - K,\, 0 \right)
+\end{equation}
+%
+over $M$ paths. Convergence is $O(M^{-1/2})$, so accuracy
+is bought expensively, and cutting the error in half costs four times the paths.
+
+\section{Results}
+
+With $S_0 = K = 100$, $r = 5\%$, $\sigma = 20\%$ and $T = 1$:
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+ & \textbf{Price} & \textbf{95\% interval} \\
+\midrule
+European, analytic     & 10.4506 & n/a \\
+European, Monte Carlo  & 10.4520 & $\pm\,0.0204$ \\
+Asian, Monte Carlo     &  5.7661 & $\pm\,0.0350$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The simulated European price differs from the analytic one by $0.0014$, well
+inside the interval, so the estimator is sound. The Asian call prices at
+roughly half the European. Averaging over the path damps the variance of the
+terminal quantity, and a less volatile underlying quantity carries less
+optionality.
+
+\end{document}

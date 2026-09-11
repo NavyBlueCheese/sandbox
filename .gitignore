@@ -5,7 +5,6 @@ __pycache__/
 *.o
 data/
 *.png
-*.pdf
 *.aux
 *.log
 *.out
