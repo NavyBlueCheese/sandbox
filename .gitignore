@@ -12,3 +12,5 @@ data/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.bbl
+*.blg
